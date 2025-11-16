@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎤 Mock Interview System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="text-3xl">🎤</div>
+                    <h1 class="text-2xl font-bold">Mock Interview System</h1>
+                </div>
+                <div class="hidden md:flex space-x-6">
+                    <button class="hover:text-blue-200 transition-colors">Home</button>
+                    <button class="hover:text-blue-200 transition-colors">Features</button>
+                    <button class="hover:text-blue-200 transition-colors">About</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                AI-Powered Mock Interviews
+            </h2>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Upload your resume, find relevant jobs, and practice with personalized AI-generated interview questions
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Resume Analysis</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span>Job Matching</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                    <span>AI Questions</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    <span>Performance Analytics</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-12">
+            <div class="flex justify-center">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div id="step1" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">1</div>
+                        <span class="ml-2 text-sm font-medium">Upload Resume</span>
+                    </div>
+                    <div class="w-16 h-1 bg-gray-300 rounded"></div>
+                    <div class="flex items-center">
+                        <div id="step2" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">2</div>
+                        <span class="ml-2 text-sm font-medium">Find Jobs</span>
+                    </div>
+                    <div class="w-16 h-1 bg-gray-300 rounded"></div>
+                    <div class="flex items-center">
+                        <div id="step3" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">3</div>
+                        <span class="ml-2 text-sm font-medium">Take Interview</span>
+                    </div>
+                    <div class="w-16 h-1 bg-gray-300 rounded"></div>
+                    <div class="flex items-center">
+                        <div id="step4" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold">4</div>
+                        <span class="ml-2 text-sm font-medium">Get Results</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Resume Upload Section -->
+            <div id="upload-section" class="bg-white rounded-xl shadow-lg p-8 mb-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">📄</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Upload Your Resume</h3>
+                    <p class="text-gray-600">Upload your PDF or DOCX resume to get started with AI analysis</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- File Upload Area -->
+                    <div class="relative">
+                        <input type="file" id="resume-file" accept=".pdf,.doc,.docx" class="hidden">
+                        <label for="resume-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                            <div id="upload-content" class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p class="mb-2 text-sm text-gray-500">
+                                    <span class="font-semibold">Click to upload</span> or drag and drop
+                                </p>
+                                <p class="text-xs text-gray-500">PDF, DOC, or DOCX (MAX. 10MB)</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email (Optional)</label>
+                            <input type="email" id="user-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="your.email@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Name (Optional)</label>
+                            <input type="text" id="user-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Your Name">
+                        </div>
+                    </div>
+
+                    <!-- Upload Button -->
+                    <button id="upload-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="upload-text">Upload Resume</span>
+                        <div id="upload-loader" class="hidden flex items-center justify-center space-x-2">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Uploading...</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Upload Result -->
+                <div id="upload-result" class="hidden mt-6"></div>
+            </div>
+
+            <!-- Job Search Section -->
+            <div id="job-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Find Relevant Jobs</h3>
+                    <p class="text-gray-600">Discover job opportunities that match your skills</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Search Form -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Skills</label>
+                            <input type="text" id="job-skills" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Python, JavaScript, React, Node.js">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                            <select id="job-location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="us">United States</option>
+                                <option value="uk">United Kingdom</option>
+                                <option value="ca">Canada</option>
+                                <option value="remote">Remote</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="search-jobs-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                        Search Jobs
+                    </button>
+                </div>
+
+                <!-- Job Results -->
+                <div id="job-results" class="hidden mt-8"></div>
+            </div>
+
+            <!-- Interview Section -->
+            <div id="interview-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">💬</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Mock Interview</h3>
+                    <p class="text-gray-600">Answer AI-generated questions tailored to your job</p>
+                </div>
+
+                <!-- Interview Content -->
+                <div id="interview-content"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Your Results</h3>
+                    <p class="text-gray-600">Detailed analysis of your interview performance</p>
+                </div>
+
+                <!-- Results Content -->
+                <div id="results-content"></div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white rounded-lg p-6 text-center shadow-md card-hover">
+                <div class="text-4xl mb-4">🤖</div>
+                <h4 class="text-lg font-semibold mb-2">AI-Powered</h4>
+                <p class="text-gray-600 text-sm">Advanced AI generates personalized interview questions</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center shadow-md card-hover">
+                <div class="text-4xl mb-4">📈</div>
+                <h4 class="text-lg font-semibold mb-2">Performance Analytics</h4>
+                <p class="text-gray-600 text-sm">Detailed scoring and improvement suggestions</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center shadow-md card-hover">
+                <div class="text-4xl mb-4">🎯</div>
+                <h4 class="text-lg font-semibold mb-2">Job Matching</h4>
+                <p class="text-gray-600 text-sm">Find jobs that match your skills and experience</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center shadow-md card-hover">
+                <div class="text-4xl mb-4">📱</div>
+                <h4 class="text-lg font-semibold mb-2">Modern Interface</h4>
+                <p class="text-gray-600 text-sm">Beautiful, responsive design for all devices</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8">
+            <div class="text-center">
+                <p>&copy; 2024 Mock Interview System. Built with AI and ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let currentResumeId = '';
+        let currentJobId = '';
+        let currentInterviewId = '';
+
+        // File upload handling
+        document.getElementById('resume-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const uploadContent = document.getElementById('upload-content');
+                uploadContent.innerHTML = `
+                    <div class="flex items-center space-x-2 text-green-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-medium">${file.name}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Ready to upload</p>
+                `;
+            }
+        });
+
+        // Upload resume
+        document.getElementById('upload-btn').addEventListener('click', async function() {
+            const fileInput = document.getElementById('resume-file');
+            const userEmail = document.getElementById('user-email').value;
+            const userName = document.getElementById('user-name').value;
+            const uploadBtn = this;
+            const uploadText = document.getElementById('upload-text');
+            const uploadLoader = document.getElementById('upload-loader');
+            const uploadResult = document.getElementById('upload-result');
+
+            if (!fileInput.files[0]) {
+                showAlert('Please select a file first!', 'error');
+                return;
+            }
+
+            // Show loading
+            uploadBtn.disabled = true;
+            uploadText.classList.add('hidden');
+            uploadLoader.classList.remove('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                if (userEmail) formData.append('user_email', userEmail);
+                if (userName) formData.append('user_name', userName);
+
+                const response = await fetch(`${API_BASE}/resume/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentResumeId = data.resume_id;
+                    
+                    // Show success result
+                    uploadResult.className = 'mt-6 p-4 bg-green-50 border border-green-200 rounded-lg';
+                    uploadResult.innerHTML = `
+                        <div class="flex items-center space-x-2 text-green-800 mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium">Resume uploaded successfully!</span>
+                        </div>
+                        <div class="text-sm text-green-700">
+                            <p><strong>Skills detected:</strong> ${data.skills?.length || 0} skills</p>
+                            <p><strong>Experience:</strong> ${data.experience_years} years</p>
+                            <p><strong>Education:</strong> ${data.education_level}</p>
+                        </div>
+                    `;
+                    uploadResult.classList.remove('hidden');
+
+                    // Update progress and show job section
+                    updateProgress(2);
+                    setTimeout(() => {
+                        document.getElementById('job-section').classList.remove('hidden');
+                        document.getElementById('job-skills').value = data.skills?.join(', ') || '';
+                        document.querySelector('#job-section').scrollIntoView({ behavior: 'smooth' });
+                    }, 1500);
+
+                } else {
+                    const error = await response.json();
+                    showAlert(`Upload failed: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadText.classList.remove('hidden');
+                uploadLoader.classList.add('hidden');
+            }
+        });
+
+        // Search jobs
+        document.getElementById('search-jobs-btn').addEventListener('click', async function() {
+            const skills = document.getElementById('job-skills').value;
+            const location = document.getElementById('job-location').value;
+            const jobResults = document.getElementById('job-results');
+
+            if (!skills.trim()) {
+                showAlert('Please enter some skills to search for jobs', 'error');
+                return;
+            }
+
+            this.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>';
+            this.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/jobs/search?skills=${encodeURIComponent(skills)}&location=${location}&count=10`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayJobs(data.jobs);
+                    jobResults.classList.remove('hidden');
+                    updateProgress(3);
+                } else {
+                    showAlert('Failed to search jobs', 'error');
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                this.innerHTML = 'Search Jobs';
+                this.disabled = false;
+            }
+        });
+
+        function displayJobs(jobs) {
+            const jobResults = document.getElementById('job-results');
+            
+            if (jobs.length === 0) {
+                jobResults.innerHTML = '<p class="text-center text-gray-500">No jobs found. Try different skills.</p>';
+                return;
+            }
+
+            const jobsHTML = jobs.map(job => `
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer job-card" data-job-id="${job.id}">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="text-lg font-semibold text-gray-900">${job.title}</h4>
+                        ${job.remote_work ? '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Remote</span>' : ''}
+                    </div>
+                    <div class="text-gray-600 mb-2">
+                        <p class="font-medium">${job.company}</p>
+                        <p class="text-sm">${job.location}</p>
+                    </div>
+                    ${job.salary_min && job.salary_max ? `
+                        <p class="text-sm text-gray-600 mb-3">
+                            $${job.salary_min.toLocaleString()} - $${job.salary_max.toLocaleString()}
+                        </p>
+                    ` : ''}
+                    <p class="text-gray-700 text-sm mb-4">${job.description.substring(0, 150)}...</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${job.skills_required?.slice(0, 4).map(skill => 
+                            `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">${skill}</span>`
+                        ).join('') || ''}
+                    </div>
+                    <button class="select-job-btn w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg transition-colors">
+                        Start Interview for This Job
+                    </button>
+                </div>
+            `).join('');
+
+            jobResults.innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Found ${jobs.length} jobs</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${jobsHTML}
+                </div>
+            `;
+
+            // Add click handlers for job selection
+            document.querySelectorAll('.select-job-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const jobCard = this.closest('.job-card');
+                    const jobId = jobCard.dataset.jobId;
+                    selectJob(jobId);
+                });
+            });
+        }
+
+        function selectJob(jobId) {
+            currentJobId = jobId;
+            document.getElementById('interview-section').classList.remove('hidden');
+            document.querySelector('#interview-section').scrollIntoView({ behavior: 'smooth' });
+            startInterview();
+        }
+
+        async function startInterview() {
+            const interviewContent = document.getElementById('interview-content');
+            
+            interviewContent.innerHTML = `
+                <div class="text-center py-8">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Generating personalized interview questions...</p>
+                </div>
+            `;
+
+            try {
+                // Generate questions
+                const questionsResponse = await fetch(`${API_BASE}/interview/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_id: currentResumeId,
+                        job_id: currentJobId,
+                        question_count: 5
+                    })
+                });
+
+                if (!questionsResponse.ok) throw new Error('Failed to generate questions');
+                
+                const questionsData = await questionsResponse.json();
+
+                // Start interview session
+                const interviewResponse = await fetch(`${API_BASE}/interview/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_id: currentResumeId,
+                        job_id: currentJobId,
+                        questions: questionsData.questions
+                    })
+                });
+
+                if (!interviewResponse.ok) throw new Error('Failed to start interview');
+                
+                const interviewData = await interviewResponse.json();
+                currentInterviewId = interviewData.interview_id;
+
+                displayInterview(questionsData.questions, 0);
+                updateProgress(4);
+
+            } catch (error) {
+                interviewContent.innerHTML = `
+                    <div class="text-center py-8 text-red-600">
+                        <p>Error starting interview: ${error.message}</p>
+                        <button onclick="startInterview()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayInterview(questions, currentIndex) {
+            const interviewContent = document.getElementById('interview-content');
+            const question = questions[currentIndex];
+            const progress = ((currentIndex + 1) / questions.length) * 100;
+
+            interviewContent.innerHTML = `
+                <div class="mb-6">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Question ${currentIndex + 1} of ${questions.length}</span>
+                        <span>${Math.round(progress)}% Complete</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex space-x-2 mb-4">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">${question.type}</span>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">${question.difficulty}</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">${question.time_limit || 5} min</span>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">${question.question}</h4>
+                    ${question.expected_keywords && question.expected_keywords.length > 0 ? `
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Keywords to consider:</p>
+                            <div class="flex flex-wrap gap-1">
+                                ${question.expected_keywords.map(keyword => 
+                                    `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">${keyword}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Answer</label>
+                    <textarea id="answer-input" class="w-full h-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                              placeholder="Type your answer here..."></textarea>
+                    <div class="mt-2 text-sm text-gray-500">
+                        <span id="char-count">0</span> characters
+                    </div>
+                </div>
+
+                <div class="flex justify-between">
+                    <button ${currentIndex === 0 ? 'disabled' : ''} 
+                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onclick="showPreviousQuestion(${currentIndex - 1})">
+                        Previous
+                    </button>
+                    <button id="submit-answer-btn" 
+                            class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                            onclick="submitAnswer(${currentIndex}, ${questions.length})">
+                        ${currentIndex === questions.length - 1 ? 'Finish Interview' : 'Next Question'}
+                    </button>
+                </div>
+            `;
+
+            // Character counter
+            document.getElementById('answer-input').addEventListener('input', function() {
+                document.getElementById('char-count').textContent = this.value.length;
+            });
+        }
+
+        async function submitAnswer(questionIndex, totalQuestions) {
+            const answerInput = document.getElementById('answer-input');
+            const answer = answerInput.value.trim();
+            const submitBtn = document.getElementById('submit-answer-btn');
+
+            if (!answer) {
+                showAlert('Please provide an answer before submitting', 'error');
+                return;
+            }
+
+            submitBtn.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/interview/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        interview_id: currentInterviewId,
+                        question_index: questionIndex,
+                        answer: answer
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to submit answer');
+                
+                const data = await response.json();
+
+                if (data.is_complete) {
+                    showResults(data);
+                } else {
+                    // Move to next question
+                    setTimeout(() => {
+                        displayInterview(data.questions || [], questionIndex + 1);
+                    }, 1000);
+                }
+
+            } catch (error) {
+                showAlert(`Error submitting answer: ${error.message}`, 'error');
+                submitBtn.innerHTML = questionIndex === totalQuestions - 1 ? 'Finish Interview' : 'Next Question';
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function showResults(data) {
+            document.getElementById('results-section').classList.remove('hidden');
+            document.querySelector('#results-section').scrollIntoView({ behavior: 'smooth' });
+
+            try {
+                const response = await fetch(`${API_BASE}/interview/${currentInterviewId}/results`);
+                const results = await response.json();
+
+                const resultsContent = document.getElementById('results-content');
+                resultsContent.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="text-center p-6 bg-blue-50 rounded-lg">
+                            <div class="text-3xl font-bold text-blue-600 mb-2">${results.scores.technical.toFixed(1)}</div>
+                            <div class="text-sm text-gray-600">Technical Score</div>
+                        </div>
+                        <div class="text-center p-6 bg-green-50 rounded-lg">
+                            <div class="text-3xl font-bold text-green-600 mb-2">${results.scores.communication.toFixed(1)}</div>
+                            <div class="text-sm text-gray-600">Communication</div>
+                        </div>
+                        <div class="text-center p-6 bg-purple-50 rounded-lg">
+                            <div class="text-3xl font-bold text-purple-600 mb-2">${results.scores.overall.toFixed(1)}</div>
+                            <div class="text-sm text-gray-600">Overall Score</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Interview Summary</h4>
+                        <p class="text-gray-700">${results.feedback?.overall_performance || 'Great job completing the interview! You demonstrated good knowledge and communication skills.'}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-green-50 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-green-800 mb-3">Strengths</h4>
+                            <ul class="space-y-2">
+                                ${(results.feedback?.technical_strengths || ['Clear communication', 'Good technical knowledge']).map(strength => 
+                                    `<li class="flex items-center text-green-700">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        ${strength}
+                                    </li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-orange-50 rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-orange-800 mb-3">Areas for Improvement</h4>
+                            <ul class="space-y-2">
+                                ${(results.feedback?.improvement_areas || ['Provide more specific examples', 'Practice technical concepts']).map(area => 
+                                    `<li class="flex items-center text-orange-700">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                        ${area}
+                                    </li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button onclick="startNewInterview()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors mr-4">
+                            Start New Interview
+                        </button>
+                        <button onclick="window.open('${API_BASE}/docs', '_blank')" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors">
+                            View API Docs
+                        </button>
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById('results-content').innerHTML = `
+                    <div class="text-center py-8 text-red-600">
+                        <p>Error loading detailed results: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateProgress(step) {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (i <= step) {
+                    stepEl.className = 'w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold';
+                } else {
+                    stepEl.className = 'w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-semibold';
+                }
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 p-4 rounded-lg z-50 ${
+                type === 'error' ? 'bg-red-100 border border-red-200 text-red-700' : 'bg-green-100 border border-green-200 text-green-700'
+            }`;
+            alertDiv.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${type === 'error' ? 
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' :
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+                        }
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        function startNewInterview() {
+            // Reset all sections
+            document.getElementById('job-section').classList.add('hidden');
+            document.getElementById('interview-section').classList.add('hidden');
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('upload-result').classList.add('hidden');
+            
+            // Reset form
+            document.getElementById('resume-file').value = '';
+            document.getElementById('user-email').value = '';
+            document.getElementById('user-name').value = '';
+            
+            // Reset upload content
+            document.getElementById('upload-content').innerHTML = `
+                <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p class="mb-2 text-sm text-gray-500">
+                    <span class="font-semibold">Click to upload</span> or drag and drop
+                </p>
+                <p class="text-xs text-gray-500">PDF, DOC, or DOCX (MAX. 10MB)</p>
+            `;
+            
+            // Reset progress
+            updateProgress(1);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Check server status on load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                if (response.ok) {
+                    console.log('✅ Backend server is running!');
+                } else {
+                    showAlert('Backend server might not be running. Please start it first.', 'error');
+                }
+            } catch (error) {
+                showAlert('Cannot connect to backend server. Please make sure it\'s running on http://localhost:8000', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

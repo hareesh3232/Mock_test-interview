@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Job Search API Test</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testServer()">Test Server Connection</button>
+    <button onclick="testJobSearch()">Test Job Search</button>
+    <button onclick="testCORS()">Test CORS</button>
+    <button onclick="clearResults()">Clear Results</button>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testServer() {
+            addResult('🔄 Testing server connection...', 'info');
+            
+            try {
+                const response = await axios.get(API_BASE);
+                addResult(`✅ Server is running! Status: ${response.status}<br>Response: <pre>${JSON.stringify(response.data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                addResult(`❌ Server connection failed: ${error.message}<br>Details: <pre>${JSON.stringify(error.response?.data || error, null, 2)}</pre>`, 'error');
+            }
+        }
+        
+        async function testJobSearch() {
+            addResult('🔄 Testing job search...', 'info');
+            
+            try {
+                const response = await axios.get(`${API_BASE}/jobs/search`, {
+                    params: {
+                        skills: 'Python,JavaScript,React,Docker,AWS',
+                        location: 'us',
+                        count: 10
+                    }
+                });
+                
+                addResult(`✅ Job search successful! Status: ${response.status}<br>Found ${response.data.total} jobs<br>Response: <pre>${JSON.stringify(response.data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                addResult(`❌ Job search failed: ${error.message}<br>Details: <pre>${JSON.stringify(error.response?.data || error, null, 2)}</pre>`, 'error');
+            }
+        }
+        
+        async function testCORS() {
+            addResult('🔄 Testing CORS...', 'info');
+            
+            try {
+                const response = await axios.options(API_BASE);
+                addResult(`✅ CORS preflight successful! Status: ${response.status}`, 'success');
+            } catch (error) {
+                addResult(`❌ CORS test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.onload = function() {
+            addResult('🚀 Page loaded. Click buttons to test the API.', 'info');
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
