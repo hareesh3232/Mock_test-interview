@@ -64,7 +64,7 @@ data = {"resumes": {}, "jobs": [], "interviews": {}}
 os.makedirs("uploads", exist_ok=True)
 
 class LangChainService:
-    """Centralized LangChain service for AI operations"""
+    
     
     def __init__(self, api_key: str):
         print("Initializing ChatGoogleGenerativeAI...")
@@ -79,7 +79,7 @@ class LangChainService:
         self._setup_prompts()
     
     def _setup_prompts(self):
-        """Setup all prompt templates"""
+        
         self.resume_analysis_prompt = PromptTemplate(
             input_variables=["resume_text"],
             template="""

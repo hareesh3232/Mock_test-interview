@@ -132,20 +132,6 @@ mock-interview-system/
 - `POST /interview/submit` - Submit answer
 - `GET /interview/{interview_id}/results` - Get results
 
-## 🔒 Privacy & Security
-
-- Resume data is processed securely and encrypted
-- No data sharing with third parties
-- Users can delete their data anytime
-- All processing on secure servers
-
-## 🎯 Performance Features
-
-- **Async Processing**: Non-blocking operations for better performance
-- **Caching**: Intelligent caching for faster responses
-- **Rate Limiting**: API protection against abuse
-- **Error Handling**: Comprehensive error handling and logging
-- **Validation**: Input validation and sanitization
 
 ## 🧪 Testing
 
@@ -154,7 +140,7 @@ mock-interview-system/
 cd backend
 python -m pytest
 
-# Frontend tests  
+# Frontend tests
 cd frontend
 npm test
 ```
@@ -163,7 +149,6 @@ npm test
 
 - Health check endpoint: `GET /`
 - API documentation: `http://localhost:8000/docs`
-- Metrics endpoint: `GET /metrics`
 
 ## 🤝 Contributing
 
