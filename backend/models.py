@@ -2,9 +2,9 @@
 SQLAlchemy models for the Mock Interview System
 """
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Float, JSON, ForeignKey, Enum
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Float, JSON, ForeignKey, Enum, Uuid
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
 import enum
@@ -20,7 +20,7 @@ class User(Base):
     """User model"""
     __tablename__ = "users"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -34,8 +34,8 @@ class Resume(Base):
     """Resume model"""
     __tablename__ = "resumes"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid, ForeignKey("users.id"), nullable=True)
     filename = Column(String(255), nullable=False)
     file_path = Column(String(500), nullable=False)
     parsed_data = Column(JSON)  # Structured resume data
@@ -52,7 +52,7 @@ class Job(Base):
     """Job model"""
     __tablename__ = "jobs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     company = Column(String(255), nullable=False)
     location = Column(String(255), nullable=False)
@@ -74,10 +74,10 @@ class Interview(Base):
     """Interview session model"""
     __tablename__ = "interviews"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
-    resume_id = Column(UUID(as_uuid=True), ForeignKey("resumes.id"), nullable=False)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id"), nullable=False)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid, ForeignKey("users.id"), nullable=True)
+    resume_id = Column(Uuid, ForeignKey("resumes.id"), nullable=False)
+    job_id = Column(Uuid, ForeignKey("jobs.id"), nullable=False)
     questions = Column(JSON)  # List of interview questions
     answers = Column(JSON, default=list)  # List of answers and evaluations
     status = Column(Enum(InterviewStatus), default=InterviewStatus.PENDING)
@@ -98,8 +98,8 @@ class QAPair(Base):
     """Question-Answer pair model"""
     __tablename__ = "qa_pairs"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    interview_id = Column(UUID(as_uuid=True), ForeignKey("interviews.id"), nullable=False)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    interview_id = Column(Uuid, ForeignKey("interviews.id"), nullable=False)
     question_text = Column(Text, nullable=False)
     answer_text = Column(Text, nullable=False)
     question_type = Column(String(50))  # technical, behavioral, scenario
