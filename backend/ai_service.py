@@ -17,11 +17,15 @@ class GeminiService:
         self.model = genai.GenerativeModel('gemini-pro')
     
     async def generate_interview_questions(self, job_description: str, resume_skills: List[str], 
-                                         job_requirements: List[str], question_count: int = 10) -> List[Dict[str, Any]]:
-        """Generate job-specific interview questions based on job description and resume skills"""
+                                         job_requirements: List[str], job_title: str, company_name: str, 
+                                         question_count: int = 10) -> List[Dict[str, Any]]:
+        """Generate job-specific interview questions based on job details and resume skills"""
         
         prompt = f"""
         You are an expert HR professional and technical interviewer. Generate {question_count} interview questions for the following job position.
+        
+        Job Role: {job_title}
+        Company: {company_name}
         
         Job Description:
         {job_description}
@@ -33,10 +37,10 @@ class GeminiService:
         {', '.join(resume_skills)}
         
         Generate a mix of:
-        1. Technical questions (40%) - specific to the role and technologies mentioned
+        1. Technical questions (40%) - specific to the role ({job_title}) and technologies mentioned
         2. Behavioral questions (30%) - STAR method questions about past experiences
-        3. Situational questions (20%) - hypothetical scenarios
-        4. Company/role-specific questions (10%) - about the position and company
+        3. Situational questions (20%) - hypothetical scenarios relevant to {job_title}
+        4. Company/role-specific questions (10%) - about {company_name} if known, or the industry
         
         For each question, provide:
         - question: The actual question text
@@ -52,6 +56,12 @@ class GeminiService:
             response = self.model.generate_content(prompt)
             # Parse the response and return structured data
             questions = self._parse_questions_response(response.text)
+            
+            # If empty list returned, use fallback
+            if not questions:
+                print("Gemini returned empty questions list, using fallback")
+                return self._get_fallback_questions(job_description, resume_skills, question_count)
+                
             return questions
         except Exception as e:
             print(f"Error generating questions: {e}")

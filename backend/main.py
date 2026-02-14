@@ -3,6 +3,7 @@ FastAPI main application for Mock Interview System
 """
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Form
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
@@ -24,6 +25,22 @@ from job_search_service import JobSearchService
 ai_service = GeminiService()
 resume_parser = SimpleResumeParser()
 job_search_service = JobSearchService()
+
+# Request Models
+class GenerateQuestionsRequest(BaseModel):
+    resume_id: str
+    job_id: str
+    question_count: int = 10
+
+class StartInterviewRequest(BaseModel):
+    resume_id: str
+    job_id: str
+    questions: List[dict]
+
+class SubmitAnswerRequest(BaseModel):
+    interview_id: str
+    question_index: int
+    answer: str
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -47,7 +64,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,6 +86,7 @@ async def upload_resume(
     db: AsyncSession = Depends(get_async_db)
 ):
     """Upload and parse resume"""
+    print(f"Received resume upload request: {file.filename}")
     try:
         # Validate file type
         if not file.filename.lower().endswith(('.pdf', '.doc', '.docx')):
@@ -101,14 +119,15 @@ async def upload_resume(
                 await db.refresh(user)
         
         # Create resume record
+        resume_data = parsed_data.get("parsed_data", {})
         resume = Resume(
             user_id=user.id if user else None,
             filename=file.filename,
             file_path=file_path,
-            parsed_data=parsed_data["parsed_data"],
-            skills=parsed_data["parsed_data"]["skills"],  
-            experience_years=parsed_data["parsed_data"]["experience_years"],
-            education_level=parsed_data["parsed_data"]["education_level"]
+            parsed_data=resume_data,
+            skills=resume_data.get("skills", []),  
+            experience_years=resume_data.get("experience_years", 0),
+            education_level=resume_data.get("education_level", "Unknown")
         )
         
         db.add(resume)
@@ -230,18 +249,23 @@ async def get_job_details(job_id: str, db: AsyncSession = Depends(get_async_db))
 
 @app.post("/interview/generate")
 async def generate_interview_questions(
-    resume_id: str,
-    job_id: str,
-    question_count: int = 10,
+    request: GenerateQuestionsRequest,
     db: AsyncSession = Depends(get_async_db)
 ):
     """Generate job-specific interview questions"""
     try:
+        # Convert string IDs to UUIDs
+        try:
+            resume_uuid = uuid.UUID(request.resume_id)
+            job_uuid = uuid.UUID(request.job_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid UUID format")
+
         # Get resume and job data
-        resume_result = await db.execute(select(Resume).where(Resume.id == resume_id))
+        resume_result = await db.execute(select(Resume).where(Resume.id == resume_uuid))
         resume = resume_result.scalar_one_or_none()
         
-        job_result = await db.execute(select(Job).where(Job.id == job_id))
+        job_result = await db.execute(select(Job).where(Job.id == job_uuid))
         job = job_result.scalar_one_or_none()
         
         if not resume:
@@ -254,12 +278,14 @@ async def generate_interview_questions(
             job_description=job.description,
             resume_skills=resume.skills,
             job_requirements=job.requirements,
-            question_count=question_count
+            job_title=job.title,
+            company_name=job.company,
+            question_count=request.question_count
         )
         
         return {
-            "resume_id": resume_id,
-            "job_id": job_id,
+            "resume_id": request.resume_id,
+            "job_id": request.job_id,
             "questions": questions,
             "total_questions": len(questions)
         }
@@ -269,18 +295,23 @@ async def generate_interview_questions(
 
 @app.post("/interview/start")
 async def start_interview(
-    resume_id: str,
-    job_id: str,
-    questions: List[dict],
+    request: StartInterviewRequest,
     db: AsyncSession = Depends(get_async_db)
 ):
     """Start a new interview session"""
     try:
+        # Convert string IDs to UUIDs
+        try:
+            resume_uuid = uuid.UUID(request.resume_id)
+            job_uuid = uuid.UUID(request.job_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid UUID format")
+
         # Get resume and job data
-        resume_result = await db.execute(select(Resume).where(Resume.id == resume_id))
+        resume_result = await db.execute(select(Resume).where(Resume.id == resume_uuid))
         resume = resume_result.scalar_one_or_none()
         
-        job_result = await db.execute(select(Job).where(Job.id == job_id))
+        job_result = await db.execute(select(Job).where(Job.id == job_uuid))
         job = job_result.scalar_one_or_none()
         
         if not resume:
@@ -291,9 +322,9 @@ async def start_interview(
         # Create interview record
         interview = Interview(
             user_id=resume.user_id,
-            resume_id=resume_id,
-            job_id=job_id,
-            questions=questions,
+            resume_id=resume_uuid,
+            job_id=job_uuid,
+            questions=request.questions,
             status=InterviewStatus.IN_PROGRESS
         )
         
@@ -303,11 +334,11 @@ async def start_interview(
         
         return {
             "interview_id": str(interview.id),
-            "resume_id": resume_id,
-            "job_id": job_id,
-            "questions": questions,
+            "resume_id": request.resume_id,
+            "job_id": request.job_id,
+            "questions": request.questions,
             "current_question_index": 0,
-            "total_questions": len(questions),
+            "total_questions": len(request.questions),
             "status": interview.status.value
         }
         
@@ -316,38 +347,42 @@ async def start_interview(
 
 @app.post("/interview/submit")
 async def submit_answer(
-    interview_id: str,
-    question_index: int,
-    answer: str,
+    request: SubmitAnswerRequest,
     db: AsyncSession = Depends(get_async_db)
 ):
     """Submit an answer and get evaluation"""
     try:
+        # Convert interview ID to UUID
+        try:
+            interview_uuid = uuid.UUID(request.interview_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid UUID format")
+
         # Get interview data
-        interview_result = await db.execute(select(Interview).where(Interview.id == interview_id))
+        interview_result = await db.execute(select(Interview).where(Interview.id == interview_uuid))
         interview = interview_result.scalar_one_or_none()
         
         if not interview:
             raise HTTPException(status_code=404, detail="Interview not found")
         
-        if question_index >= len(interview.questions):
+        if request.question_index >= len(interview.questions):
             raise HTTPException(status_code=400, detail="Invalid question index")
         
-        current_question = interview.questions[question_index]
+        current_question = interview.questions[request.question_index]
         
         # Evaluate answer using AI
         evaluation = await ai_service.evaluate_answer(
             question=current_question["question"],
-            answer=answer,
+            answer=request.answer,
             question_type=current_question.get("type", "technical"),
             expected_keywords=current_question.get("expected_keywords", [])
         )
         
         # Create QA pair record
         qa_pair = QAPair(
-            interview_id=interview_id,
+            interview_id=interview_uuid,
             question_text=current_question["question"],
-            answer_text=answer,
+            answer_text=request.answer,
             question_type=current_question.get("type", "technical"),
             technical_score=evaluation["technical_score"],
             communication_score=evaluation["communication_score"],
@@ -364,15 +399,15 @@ async def submit_answer(
         # Update interview answers
         current_answers = interview.answers or []
         current_answers.append({
-            "question_index": question_index,
+            "question_index": request.question_index,
             "question": current_question,
-            "answer": answer,
+            "answer": request.answer,
             "evaluation": evaluation
         })
         interview.answers = current_answers
         
         # Check if interview is complete
-        is_complete = question_index + 1 >= len(interview.questions)
+        is_complete = request.question_index + 1 >= len(interview.questions)
         
         if is_complete:
             interview.status = InterviewStatus.COMPLETED
@@ -380,7 +415,7 @@ async def submit_answer(
             
             # Calculate overall scores
             qa_pairs_result = await db.execute(
-                select(QAPair).where(QAPair.interview_id == interview_id)
+                select(QAPair).where(QAPair.interview_id == interview_uuid)
             )
             qa_pairs = qa_pairs_result.scalars().all()
             
@@ -411,11 +446,11 @@ async def submit_answer(
         # Get next question if not complete
         next_question = None
         if not is_complete:
-            next_question = interview.questions[question_index + 1]
+            next_question = interview.questions[request.question_index + 1]
         
         return {
-            "interview_id": interview_id,
-            "question_index": question_index,
+            "interview_id": str(interview.id),
+            "question_index": request.question_index,
             "evaluation": evaluation,
             "is_complete": is_complete,
             "next_question": next_question,
@@ -513,4 +548,4 @@ async def get_interview_results(interview_id: str, db: AsyncSession = Depends(ge
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8080)

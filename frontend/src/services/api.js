@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -32,17 +32,17 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    const errorMessage = error.response?.data?.detail || 
-                        error.response?.data?.message || 
-                        error.message || 
-                        'An unexpected error occurred';
-    
+    const errorMessage = error.response?.data?.detail ||
+      error.response?.data?.message ||
+      error.message ||
+      'An unexpected error occurred';
+
     // Handle specific error codes
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       window.location.href = '/';
     }
-    
+
     return Promise.reject(new Error(errorMessage));
   }
 );
@@ -51,7 +51,7 @@ api.interceptors.response.use(
 export const apiEndpoints = {
   // Health check
   health: () => api.get('/'),
-  
+
   // Resume endpoints
   uploadResume: (formData) => {
     return api.post('/resume/upload', formData, {
@@ -60,9 +60,9 @@ export const apiEndpoints = {
       },
     });
   },
-  
+
   getResume: (resumeId) => api.get(`/resume/${resumeId}`),
-  
+
   // Job endpoints
   searchJobs: (params) => {
     const { skills, location = 'us', count = 10 } = params;
@@ -74,30 +74,30 @@ export const apiEndpoints = {
       },
     });
   },
-  
+
   getJob: (jobId) => api.get(`/jobs/${jobId}`),
-  
+
   // Interview endpoints
   generateQuestions: (data) => api.post('/interview/generate', data),
-  
+
   startInterview: (data) => api.post('/interview/start', data),
-  
+
   submitAnswer: (data) => api.post('/interview/submit', data),
-  
+
   getInterview: (interviewId) => api.get(`/interview/${interviewId}`),
-  
+
   getResults: (interviewId) => api.get(`/interview/${interviewId}/results`),
-  
+
   // Analytics endpoints
   getUserStats: (userId) => api.get(`/analytics/user/${userId}`),
-  
+
   getInterviewHistory: (userId) => api.get(`/analytics/history/${userId}`),
 };
 
 // Convenience functions
 export const uploadResume = (formData) => apiEndpoints.uploadResume(formData);
 
-export const searchJobs = (skills, location = 'us', count = 10) => 
+export const searchJobs = (skills, location = 'us', count = 10) =>
   apiEndpoints.searchJobs({ skills, location, count });
 
 export const generateInterviewQuestions = (resumeId, jobId, questionCount = 5) =>
@@ -124,12 +124,12 @@ export const submitInterviewAnswer = (interviewId, questionIndex, answer) =>
 // Utility functions
 export const handleApiError = (error) => {
   console.error('API Error:', error);
-  
+
   if (error.response) {
     // Server responded with error status
     const status = error.response.status;
     const message = error.response.data?.detail || error.response.data?.message || 'Server error';
-    
+
     switch (status) {
       case 400:
         return `Bad Request: ${message}`;

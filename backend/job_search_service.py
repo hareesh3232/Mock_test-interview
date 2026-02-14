@@ -8,19 +8,23 @@ import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import random
+import os
 
 class JobSearchService:
     def __init__(self):
         self.base_url = "https://api.adzuna.com/v1/api/jobs"
-        self.app_id = "your_adzuna_app_id"  # Replace with actual API key
-        self.app_key = "your_adzuna_app_key"  # Replace with actual API key
+        self.app_id = os.getenv("ADZUNA_APP_ID")
+        self.app_key = os.getenv("ADZUNA_APP_KEY")
     
     async def search_jobs(self, skills: List[str], location: str = "us", 
                          results_per_page: int = 20) -> List[Dict[str, Any]]:
         """Search for jobs based on skills"""
         
-        # For now, return mock data since we don't have real API keys
-        # In production, you would integrate with real job APIs like Adzuna, Indeed, etc.
+        # Use real API if keys are available
+        if self.app_id and self.app_key:
+            return await self.search_jobs_real_api(skills, location, results_per_page)
+            
+        # Fallback to mock data if API fails or no keys
         return self._get_mock_jobs(skills, location, results_per_page)
     
     async def search_jobs_real_api(self, skills: List[str], location: str = "us", 

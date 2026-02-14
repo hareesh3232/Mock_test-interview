@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
-import { 
-  Upload, 
-  FileText, 
-  CheckCircle, 
-  AlertCircle, 
-  User, 
+import {
+  Upload,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  User,
   Mail,
   Loader2,
   ArrowRight
@@ -18,6 +18,8 @@ import { uploadResume } from '../services/api';
 
 const ResumeUpload = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state || {};
   const { setResume } = useApp();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -34,17 +36,17 @@ const ResumeUpload = () => {
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
-      
+
       if (!validTypes.includes(file.type)) {
         toast.error('Please upload a PDF or DOCX file');
         return;
       }
-      
+
       if (file.size > 10 * 1024 * 1024) { // 10MB
         toast.error('File size must be less than 10MB');
         return;
       }
-      
+
       setUploadedFile(file);
       toast.success('File selected successfully!');
     }
@@ -75,20 +77,22 @@ const ResumeUpload = () => {
       if (userInfo.email) formData.append('user_email', userInfo.email);
 
       const response = await uploadResume(formData);
-      
+
+      console.log('Upload success, response:', response);
       setResume(response);
       toast.success('Resume uploaded and analyzed successfully!');
-      
-      setTimeout(() => {
-        // If job is already selected, go to interview page
-        if (state.selectedJob) {
-          navigate('/interview');
-        } else {
-          navigate('/jobs');
-        }
-      }, 1500);
-      
+
+      console.log('Navigating based on state:', state);
+      if (state && state.selectedJob) {
+        console.log('Going to /interview');
+        navigate('/interview');
+      } else {
+        console.log('Going to /jobs');
+        navigate('/jobs');
+      }
+
     } catch (error) {
+      console.error('Upload failed:', error);
       toast.error(error.message || 'Failed to upload resume');
     } finally {
       setIsUploading(false);
@@ -124,13 +128,13 @@ const ResumeUpload = () => {
             {/* File Upload */}
             <div className="card p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Resume File</h3>
-              
+
               <div
                 {...getRootProps()}
                 className={`
                   relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300
-                  ${isDragActive 
-                    ? 'border-primary-500 bg-primary-50' 
+                  ${isDragActive
+                    ? 'border-primary-500 bg-primary-50'
                     : uploadedFile
                       ? 'border-green-500 bg-green-50'
                       : 'border-gray-300 hover:border-primary-400 hover:bg-primary-25'
@@ -138,7 +142,7 @@ const ResumeUpload = () => {
                 `}
               >
                 <input {...getInputProps()} />
-                
+
                 {uploadedFile ? (
                   <motion.div
                     initial={{ scale: 0 }}
@@ -186,7 +190,7 @@ const ResumeUpload = () => {
             {/* User Information */}
             <div className="card p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Personal Information (Optional)</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -201,7 +205,7 @@ const ResumeUpload = () => {
                     placeholder="Enter your full name"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Mail className="w-4 h-4 inline mr-2" />
@@ -250,7 +254,7 @@ const ResumeUpload = () => {
             {/* What Happens Next */}
             <div className="card p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">What Happens Next?</h3>
-              
+
               <div className="space-y-4">
                 {[
                   {
@@ -301,7 +305,7 @@ const ResumeUpload = () => {
             {/* Supported Formats */}
             <div className="card p-8">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Supported Formats</h3>
-              
+
               <div className="grid grid-cols-3 gap-4">
                 {[
                   { icon: FileText, label: 'PDF', color: 'text-red-500' },

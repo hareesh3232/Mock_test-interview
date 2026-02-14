@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { 
-  MessageCircle, 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  MessageCircle,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle,
   Loader2,
   ArrowRight,
@@ -35,19 +35,19 @@ const Interview = () => {
       navigate('/upload');
       return;
     }
-    
+
     if (!state.selectedJob) {
       toast.error('Please select a job first');
       navigate('/jobs');
       return;
     }
-    
+
     // If we already have questions, don't reinitialize
     if (questions.length > 0) {
       setIsLoading(false);
       return;
     }
-    
+
     initializeInterview();
   }, [state.resume, state.selectedJob]);
 
@@ -61,42 +61,70 @@ const Interview = () => {
     } else if (timeLeft === 0) {
       handleNextQuestion();
     }
-    
+
     return () => clearInterval(interval);
   }, [isTimerActive, timeLeft]);
 
   const initializeInterview = async () => {
     setIsLoading(true);
-    
+
     try {
+      console.log('Generating interview questions for:', state.selectedJob?.title);
+
       // Generate questions
       const questionsResponse = await generateInterviewQuestions(
         state.resume.resume_id,
         state.selectedJob.id,
         5
       );
-      
+
+      console.log('Questions generated:', questionsResponse);
+
+      if (!questionsResponse || !questionsResponse.questions) {
+        throw new Error('No questions received from AI service');
+      }
+
       setQuestions(questionsResponse.questions);
-      
+
       // Start interview session
+      console.log('Starting interview session...');
       const interviewResponse = await startInterview(
         state.resume.resume_id,
         state.selectedJob.id,
         questionsResponse.questions
       );
-      
+
+      console.log('Interview session started:', interviewResponse);
+
       setInterviewId(interviewResponse.interview_id);
       setInterview(interviewResponse);
-      
+
       // Start timer for first question
       setTimeLeft(300);
       setIsTimerActive(true);
-      
+
       toast.success('Interview started! Good luck!');
-      
+
     } catch (error) {
-      toast.error(error.message || 'Failed to start interview');
-      navigate('/jobs');
+      console.error('Interview initialization error:', error);
+      let errMsg = 'Failed to start interview';
+
+      if (typeof error === 'string') {
+        errMsg = error;
+      } else if (error.response && error.response.data && error.response.data.detail) {
+        const detail = error.response.data.detail;
+        if (Array.isArray(detail)) {
+          errMsg = detail.map(e => (typeof e === 'object' ? e.msg : String(e))).join(', ');
+        } else if (typeof detail === 'object') {
+          errMsg = JSON.stringify(detail);
+        } else {
+          errMsg = String(detail);
+        }
+      } else if (error.message) {
+        errMsg = error.message;
+      }
+
+      toast.error(errMsg);
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +167,7 @@ const Interview = () => {
         toast.success('Interview completed! Redirecting to results...');
         setTimeout(() => navigate('/results'), 1500);
       }
-      
+
     } catch (error) {
       toast.error(error.message || 'Failed to submit answer');
     } finally {
@@ -221,7 +249,7 @@ const Interview = () => {
               </span>
             </div>
           </div>
-          
+
           <div className="w-full bg-gray-200 rounded-full h-3">
             <motion.div
               className="bg-gradient-to-r from-primary-500 to-accent-500 h-3 rounded-full"
